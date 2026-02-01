@@ -23,10 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--9+29$^c@f$+yw4zs)-=cg3#=67ppb@m-oikme3&w(-(488#=u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-DEBUG = False
-ALLOWED_HOSTS = ['*']  # or the Render URL later
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # for collectstatic
 ALLOWED_HOSTS = []
 
 

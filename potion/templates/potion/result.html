@@ -17,12 +17,10 @@ body{
     color:#740e28;
 }
 
-/* Title */
-h1{
-    margin-top:30px;
+/* Small decorative emoji header */
+#pageHeader{
     font-size:3em;
-    color:#d97f8b;
-    text-shadow:2px 2px 10px #ffc2be;
+    margin-top:30px;
 }
 
 /* Question box */
@@ -147,7 +145,8 @@ button:hover{
 /* Responsive */
 @media(max-width:400px){
     .envelope{ width:90%; height:180px; font-size:1.6em; }
-    h1{ font-size:2em; }
+    #pageHeader{ font-size:2em; }
+    #questionBox h2{ font-size:2em; }
 }
 </style>
 </head>
@@ -163,13 +162,13 @@ button:hover{
     <source src="{% static 'sounds/flap.mp3' %}" type="audio/mpeg">
 </audio>
 
-<h1>💌 My Love Letter 💌</h1>
+<!-- Decorative header -->
+<div id="pageHeader">Will you be my Valentine? </div>
 
 <!-- QUESTION -->
 <div id="questionBox">
-    <h2>Will you be my Valentine? 💖</h2>
     <button onclick="answerYes()">Yes 💕</button>
-    <button id="noBtn">No 🙈</button>
+    <button id="noBtn">No !!!</button>
 </div>
 
 <!-- ENVELOPE -->
@@ -184,9 +183,6 @@ button:hover{
         <div id="letterText" data-text="{{ result.love_letter|escapejs }}"></div>
     {% endif %}
 </div>
-
-<br>
-<button onclick="window.location.href='{% url 'clear_session' %}'">← Back</button>
 
 <script>
 const envelope = document.getElementById("envelope");
@@ -207,10 +203,9 @@ function answerYes(){
     questionBox.style.display = "none";
     envelope.classList.remove("locked");
     tapText.innerText = "Tap to open 💖";
-    startMusic();
 }
 
-/* NO (run away 😆) */
+/* NO button run away */
 noBtn.addEventListener("mouseover", moveNo);
 noBtn.addEventListener("click", moveNo);
 
@@ -226,19 +221,35 @@ function moveNo(){
     noBtn.style.top = `${y}px`;
 }
 
-/* Music */
+/* Music fade in */
 function startMusic(){
     if(!musicStarted){
         music.volume = 0;
         music.play().then(()=>{
-            let v = 0;
+            let v=0;
             const fade = setInterval(()=>{
                 v += 0.01;
                 music.volume = v;
-                if(v >= 0.3) clearInterval(fade);
+                if(v>=0.3) clearInterval(fade);
             },200);
         });
         musicStarted = true;
+    }
+}
+
+/* Music fade out */
+function fadeOutMusic(){
+    if(musicStarted){
+        let v = music.volume;
+        const fade = setInterval(()=>{
+            v -= 0.02;
+            if(v <= 0){
+                music.pause();
+                music.currentTime = 0;
+                clearInterval(fade);
+            } else music.volume = v;
+        },100);
+        musicStarted = false;
     }
 }
 
@@ -257,15 +268,19 @@ envelope.addEventListener("click", ()=>{
     flap.play();
 
     if(envelope.classList.contains("open")){
+        // Close envelope
         envelope.classList.remove("open");
         letter.style.opacity = 0;
+        fadeOutMusic();  // fade out when closing
         setTimeout(()=>{
             letter.style.display = "none";
             i = 0;
             textEl.innerHTML = "";
         },600);
     } else {
+        // Open envelope
         envelope.classList.add("open");
+        startMusic(); // ✅ music starts only when envelope opens
         setTimeout(()=>{
             letter.style.display = "block";
             setTimeout(()=>letter.style.opacity = 1,50);
